@@ -42,8 +42,11 @@ IndexController.prototype._registerServiceWorker = function() {
     // progress. If it becomes "installed", call
     // indexController._updateReady()
     if(reg.installing){
+      console.log('ola installing')
+      indexController._trackInstalling(reg.installing)
+      return
       // there's an uptade in progress
-      reg.installing.addEventListener('statechange', function(){
+      //reg.installing.addEventListener('statechange', function(){
         /**
          * Douglas' Comments
          * Qual é o contexto desse 'this' IndezController ou reg ? Eu tentei dar um console.log 
@@ -51,10 +54,10 @@ IndexController.prototype._registerServiceWorker = function() {
          * Eu imaginei que eu deveria utilizar arraw funtion para garantir que o this se refere a reg, mas não tenho
          * certeza. Não sei se o this de 'this.state' é realmente o objeto de reg.installing
          */
-        if(this.state == 'installed'){
-          indexController._updateReady()
-        }
-      })
+        //if(this.state == 'installed'){
+        //  indexController._updateReady()
+        //}
+      //})
     }
 
     // Udacity hint
@@ -69,11 +72,8 @@ IndexController.prototype._registerServiceWorker = function() {
      * chamamos a função anônima como parâmetro de addEventListener de reg. Está correto pensar assim?
      */
     reg.addEventListener('uptadefound', function() {
-      reg.installing.addEventListener('statechange', function() {
-        if(this.state == 'installed'){
-          indexController._updateReady()
-        }
-      })
+      console.log('ola uptade found')
+      indexController._trackInstalling(reg.installing)
     })
     /**
      * Por fim eu fiz os testes do códido e segundo o sisteminha de testes oferecido no curso, eu conseguir completar 
@@ -82,6 +82,17 @@ IndexController.prototype._registerServiceWorker = function() {
      */
   });
 };
+
+IndexController.prototype._trackInstalling = function(worker){
+  var indexController = this;
+
+  worker.addEventListener('statechange', function(){
+    if(worker.state == 'installed'){
+      indexController._updateReady()
+    }
+  })
+
+}
 
 IndexController.prototype._updateReady = function() {
   var toast = this._toastsView.show("New version available", {
